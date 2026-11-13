@@ -1,0 +1,58 @@
+--- ga.asm
++++ ga.asm
+@@ -12,4 +12,7 @@
+ 	cpu 68000
+ 	include "ga.macrosetup.asm"
++	ifndef START_STAGE
++START_STAGE = 1
++	endif
+ 
+ StartOfRom:
+@@ -1269,5 +1272,5 @@
+ 	move.w	#$580, $FFFFC110.w
+ 	lea	(loc_7FAB6).l, a0
+-	jsr	(loc_2FC8).l
++	jsr	(HB_LoadTiles).l	; HACK barras de vida (era: jsr (loc_2FC8).l)
+ 	lea	(loc_7A25A).l, a0
+ 	lea	($00FF8000).l, a4
+@@ -4466,6 +4469,11 @@
+ 	clr.l	$FFFFFE78.w
+ 	clr.l	$FFFFFE6C.w
++	if START_STAGE>1	; HACK: comecar em outra fase (montagem opcional)
++	jsr	(HB_StartStage).l
++	nop
++	else
+ 	clr.w	$FFFFC19C.w
+ 	clr.w	$FFFFFE2C.w
++	endif
+ 	move.w	#8, $FFFFC170.w
+ 	jmp	loc_31CE(pc)
+@@ -12903,6 +12911,5 @@
+ 	lea	-$20(a6), a6
+ 	dbf	d6, loc_B884
+-	movea.w	$FFFFC184.w, a2
+-	clr.l	(a2)+
++	jmp	(HealthBars).l	; HACK barras de vida (era: movea.w $FFFFC184.w,a2 / clr.l (a2)+)
+ 	clr.l	(a2)+
+ 	move.w	a2, $FFFFC184.w
+@@ -32687,5 +32694,5 @@
+ loc_38BDC:
+ 	dc.b	$20, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $02, $00, $CC, $00, $00
+-	dc.b	$00, $00, $06, $8C, $04, $6A, $02, $48, $00, $26, $06, $6E, $02, $2C, $00, $08 ;0x0 (0x00038BDC-0x00038CCA, Entry count: 0x000000EE) [Unknown data]
++	dc.b	$00, $00, $02, $AC, $00, $8A, $00, $68, $00, $24, $06, $6E, $02, $2C, $00, $08 ;0x0 (0x00038BDC-0x00038CCA, Entry count: 0x000000EE) [Unknown data]  ; HACK: pele/machado do DEATH ADDER em dourado escuro (era 068C 046A 0248 0026)
+ 	dc.b	$00, $04, $20, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+ 	dc.b	$00, $00, $00, $00, $06, $A4, $04, $62, $02, $40, $00, $20, $06, $A4, $04, $62 ;0x20
+@@ -32694,5 +32701,5 @@
+ loc_38C20:
+ 	dc.b	$20, $0F, $00, $00, $00, $00, $00, $00, $00, $00, $00, $00
+-	dc.b	$00, $EE, $00, $00, $00, $00, $08, $A6, $04, $62, $02, $40, $00, $20, $0C, $4E ;0x40
++	dc.b	$00, $EE, $00, $00, $00, $00, $06, $EE, $02, $CE, $00, $8C, $00, $48, $0C, $4E ;0x40  ; HACK: pele/machado do DEATH BRINGER em dourado vivo (era 08A6 0462 0240 0020)
+ 	dc.b	$08, $2A, $04, $06, $02, $04, $20, $0F, $00, $00, $08, $6E, $06, $0C, $02, $08
+ 	dc.b	$00, $02, $00, $CC, $00, $88, $00, $44, $06, $8C, $04, $6A, $02, $48, $00, $26 ;0x60
+@@ -55548,4 +55555,6 @@
+ 	endm
+ 	
++	include "healthbars.asm"
++
+ EndOfRom:
+ 	END
